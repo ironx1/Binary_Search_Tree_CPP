@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
-project(untitled1)
+project(binarySearchTree)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_executable(untitled1 main.cpp)
+add_executable(binarySearchTree main.cpp)

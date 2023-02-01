@@ -87,7 +87,7 @@ private:
     {
         if (n == nullptr)
         {
-            return -1;
+            return INT_MIN;
         }
         node *iter = n;
         while (iter->left != nullptr)
@@ -100,7 +100,7 @@ private:
     {
         if (n == nullptr)
         {
-            return -1;
+            return INT_MAX;
         }
         node *iter = n;
         while (iter->right != nullptr)
@@ -132,7 +132,82 @@ private:
             return false;
         }
     }
+    node* searchNode(node* n, int key){
+        if (n== nullptr){
+            return nullptr;
+        }
+        while (key!=n->left->data&&key!=n->right->data){
+            if (key<n->data){
+                n=n->left;
+            }
+            else if (key>n->data){
+                n = n->right;
+            }
+        }
+        return n;
+    }
 
+    void deleteNodePrivate(node* n, int key){
+        if (n==nullptr){
+            return;
+        }
+        if (key<n->data){
+            deleteNodePrivate(n->left,key);
+        }
+        else if (key>n->data){
+            deleteNodePrivate(n->right, key);
+        }
+        else{
+            if (n->right== nullptr&&n->left== nullptr){
+                node* temp = searchNode(root, key);
+                if (temp->left==n){
+                    node* tmp = n;
+                    temp->left = nullptr;
+                    delete tmp;
+                    return;
+                }
+                if (temp->right==n){
+                    node* tmp = n;
+                    temp->right = nullptr;
+                    delete tmp;
+                    return;
+                }
+            }
+            if (n->left== nullptr){
+                node* temp = searchNode(root, key);
+                if (temp->right==n){
+                    node* tmp = n;
+                    temp->right=n->right;
+                    delete tmp;
+                    return;
+                }
+                if(temp->left==n){
+                    node* tmp = n;
+                    temp->left = n->right;
+                    delete tmp;
+                    return;
+                }
+            }
+            else if (n->right== nullptr){
+                node* temp = searchNode(root, key);
+                if (temp->right==n){
+                    node* tmp = n;
+                    temp->right=n->left;
+                    delete tmp;
+                    return;
+                }
+                if(temp->left==n){
+                    node* tmp = n;
+                    temp->left = n->left;
+                    delete tmp;
+                    return;
+                }
+            }
+            int minKey = findMinPrivate(n->right);
+            n->data = minKey;
+            deleteNodePrivate(n->right, minKey);
+        }
+    }
 public:
     binarySearchTree()
     {
@@ -169,6 +244,9 @@ public:
     {
         searchPrivate(root, val);
     }
+    void deleteNode(int key){
+        deleteNodePrivate(root, key);
+    }
 };
 
 int main()
@@ -183,67 +261,72 @@ int main()
     {
         int selection;
         int data;
-        cout << "1.\tInsert to Tree\n2.\tTraverse in Tree\n3.\tFind Min and Max Value\n4.\tSearch in Tree\n5.\tExit\nSelect: ";
+        cout << "1.\tInsert to Tree\n2.\tDelete Node\n3.\tTraverse in Tree\n4.\tFind Min and Max Value\n5.\tSearch in Tree\n6.\tExit\nSelect: ";
         cin >> selection;
         switch (selection)
         {
-        case 1:
-            cout << "Enter the value: ";
-            cin >> data;
-            myBst.Insert(data);
-            break;
-        case 2:
-            cout << "Inorder traversal: ";
-            myBst.printInorder();
-            cout << "Preorder traversal: ";
-            myBst.printPreorder();
-            cout << "Postorder traversal: ";
-            myBst.printPostorder();
-            break;
-        case 3:
-            cout << "Min Value: " << myBst.findMin() << endl;
-            cout << "Max Value: " << myBst.findMax() << endl;
-            break;
-        case 4:
-        {
-            string yesNoQuestion;
-            cout << "Enter the Value to Search: ";
-            cin >> data;
-            bool val = myBst.Search(data);
-            if (val == 1)
+            case 1:
+                cout << "Enter the value: ";
+                cin >> data;
+                myBst.Insert(data);
+                break;
+            case 2:
+                cout<<"Enter the value to delete: ";
+                cin>>data;
+                myBst.deleteNode(data);
+                break;
+            case 3:
+                cout << "Inorder traversal: ";
+                myBst.printInorder();
+                cout << "Preorder traversal: ";
+                myBst.printPreorder();
+                cout << "Postorder traversal: ";
+                myBst.printPostorder();
+                break;
+            case 4:
+                cout << "Min Value: " << myBst.findMin() << endl;
+                cout << "Max Value: " << myBst.findMax() << endl;
+                break;
+            case 5:
             {
-                cout << "Available" << endl;
+                string yesNoQuestion;
+                cout << "Enter the Value to Search: ";
+                cin >> data;
+                bool val = myBst.Search(data);
+                if (val == 1)
+                {
+                    cout << "Available" << endl;
+                }
+                else if (val == 0)
+                {
+                    cout << "Not Available" << endl;
+                    error:
+                    cout << "Do you want to insert"
+                         << " " << data << " to tree?(y/n): ";
+                    cin >> yesNoQuestion;
+                    if (yesNoQuestion == "y")
+                    {
+                        myBst.Insert(data);
+                        cout << data << " "
+                             << "Inserted to Tree" << endl;
+                    }
+                    else if (yesNoQuestion == "n")
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        goto error;
+                    }
+                }
+                break;
             }
-            else if (val == 0)
-            {
-                cout << "Not Available" << endl;
-            error:
-                cout << "Do you want to insert"
-                     << " " << data << " to tree?(y/n): ";
-                cin >> yesNoQuestion;
-                if (yesNoQuestion == "y")
-                {
-                    myBst.Insert(data);
-                    cout << data << " "
-                         << "Inserted to Tree" << endl;
-                }
-                else if (yesNoQuestion == "n")
-                {
-                    continue;
-                }
-                else
-                {
-                    goto error;
-                }
-            }
-            break;
-        }
-        case 5:
-            _bool = false;
-            break;
-        default:
-            cout << "Error occured" << endl;
-            break;
+            case 6:
+                _bool = false;
+                break;
+            default:
+                cout << "Error occured" << endl;
+                break;
         }
     }
     return 0;
